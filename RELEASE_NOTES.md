@@ -1,5 +1,26 @@
 # Release Notes
 
+## v0.2.2 — 2026-09-14
+
+Dependency maintenance release, clearing one high-severity advisory in
+`cryptography`. Nothing to configure — no new environment variables, no
+behavior changes.
+
+- **cryptography ≥ 50.0.1** clears **GHSA-g6cj-pr64-35w5** (high), a
+  Bleichenbacher oracle in PKCS#7 `EnvelopedData` decryption. The fix
+  landed in 50.0.0, so the old `<49` pin was blocking it. Worth noting
+  for anyone triaging: the relay only uses Fernet, HKDF and SHA-256 and
+  never calls the affected APIs, so no install was exploitable through
+  this path — but the vulnerable code was in the image.
+- **gunicorn ≥ 26.2.0**, up from 23.0.0. No advisory applied to the old
+  pin; this is three majors of upstream fixes and a fresher ceiling.
+- The container now runs gunicorn with `--no-control-socket`, silencing
+  a `Permission denied: '/home/relay'` error that gunicorn 24+ logs at
+  startup because the unprivileged `relay` user has no home directory.
+  Serving was never affected.
+
+Upgrading: `docker compose pull && docker compose up -d`.
+
 ## v0.2.1 — 2026-07-31
 
 Fixes Transaction Log client IPs showing the docker gateway (172.x)

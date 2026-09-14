@@ -4,6 +4,36 @@ All notable changes to TS Pro Relay are documented here. The format is
 based on [Keep a Changelog](https://keepachangelog.com/), and this
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.2] — 2026-09-14
+
+Dependency maintenance release. No functional or configuration changes.
+
+### Security
+- **cryptography ≥ 50.0.1** (was pinned to 48.0.1), clearing
+  **GHSA-g6cj-pr64-35w5** (high): PKCS#7 `EnvelopedData` decryption
+  exposed a Bleichenbacher oracle through distinguishable errors and
+  timing. The advisory covers `>= 44.0.0, < 50.0.0`, so the previous
+  `<49` ceiling was itself blocking the fix. The relay only uses Fernet,
+  HKDF and SHA-256 — it never calls the PKCS#7 APIs — so no deployment
+  was exploitable through this path, but the vulnerable code shipped in
+  the image.
+
+### Changed
+- **gunicorn ≥ 26.2.0** (was pinned to 23.0.0). No advisory applied to
+  23.0.0; this clears three majors of accumulated upstream fixes and
+  keeps the ceiling from going stale again.
+- Flask stays at ≥ 3.1.3 — already current, no advisories outstanding.
+- `--no-control-socket` added to the container's gunicorn command.
+  gunicorn 24 introduced a control socket that defaults to
+  `$XDG_RUNTIME_DIR/gunicorn.ctl` and falls back to `$HOME/.gunicorn/`.
+  The image's `relay` user is created with `useradd -M` and has no home
+  directory, so 26.x logged `Control server error: [Errno 13] Permission
+  denied: '/home/relay'` on every start. Serving was unaffected, but the
+  interface is unused here and an unexposed one is one less thing to
+  reason about.
+
+`pip-audit` is clean against the updated pins.
+
 ## [0.2.1] — 2026-07-31
 
 ### Changed

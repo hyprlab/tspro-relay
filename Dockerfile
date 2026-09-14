@@ -19,5 +19,8 @@ EXPOSE 8000
 
 # 2 workers is plenty — sends are short-lived and low-volume. The long
 # timeout tolerates slow upstream SMTP servers without killing a worker
-# mid-delivery.
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "-w", "2", "--timeout", "120", "relay:app"]
+# mid-delivery. The control socket is disabled: the relay user has no home
+# directory, so gunicorn's default socket path is unwritable here, and an
+# unused control interface is one more thing not to expose.
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "-w", "2", "--timeout", "120", \
+     "--no-control-socket", "relay:app"]
