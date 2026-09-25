@@ -54,7 +54,14 @@ while IFS=$'\x1f' read -r -d $'\x1e' subject body; do
     [ "$WHY" = 1 ] && [ "$this" != none ] && printf '  %-5s %s\n' "$this" "$subject" >&2
 done <<<"$log"
 
+# The 0.x releases predate strict SemVer here; the first release after them is
+# 1.0.0 whatever it carries, and strict SemVer runs from there.
+if [ "$MA" = 0 ] && [ "$level" != none ]; then
+    level=first
+fi
+
 case "$level" in
+    first) next="1.0.0" ;;
     major) next="$((MA + 1)).0.0" ;;
     minor) next="$MA.$((MI + 1)).0" ;;
     patch) next="$MA.$MI.$((PA + 1))" ;;

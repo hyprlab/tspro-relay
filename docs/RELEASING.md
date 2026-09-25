@@ -18,10 +18,11 @@ volume, the port, and the admin interface's features.
 | **MINOR** | New, backward-compatible functionality, or a deprecation | A new endpoint or optional API field; a new setting; a new optional environment variable |
 | **PATCH** | Backward-compatible fixes only | A bug fix, a performance fix, a security fix or dependency bump with no behavior change |
 
-The relay is still at `0.y.z`. SemVer allows anything to change in `0.y.z`;
-this project applies the table above anyway, so a breaking change takes the
-version to `1.0.0`. Moving to `1.0.0` for any other reason is the maintainer's
-decision.
+Releases up to 0.2.2 were numbered before this policy and keep the numbers
+they shipped with, since their images report them. **The next release is
+`1.0.0`**, whatever it carries, and every release after it follows the table
+strictly. `tools/next-version.sh` knows this: from a `0.y.z` tag it answers
+`1.0.0`.
 
 `tools/next-version.sh` reads the Conventional Commit types since the last
 release and says which bump they call for: `!` or a `BREAKING CHANGE:` footer

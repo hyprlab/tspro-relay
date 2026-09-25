@@ -6,6 +6,12 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
+### Changed
+- The next release is 1.0.0, and version numbers follow Semantic Versioning
+  strictly from there: a change that the API, the environment variables, the
+  data volume or the port can't take without help raises the major version.
+  Releases up to 0.2.2 keep their numbers.
+
 ## [0.2.2] - 2026-09-14
 
 Dependency maintenance release. No functional or configuration changes.
