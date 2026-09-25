@@ -118,147 +118,22 @@ key.
 > `image:` → `build: .` in the compose file, then
 > `docker compose up -d --build`.
 
-## TLS in production
+## Before it faces the internet
 
-The login cookie and Bearer token must never cross plaintext. Put a
-reverse proxy in front that terminates HTTPS and proxies to
-`127.0.0.1:8026`.
+The login cookie and the Bearer API key must never cross plain HTTP. Put a
+TLS-terminating reverse proxy in front of port 8026, then point the TSP app at
+the `https://` URL in **Settings → Domain / Email**. The proxy examples, the
+TSP app settings and the operator checklist are in the documentation below.
 
-**Caddy**
-```
-relay.example.com {
-    reverse_proxy 127.0.0.1:8026
-}
-```
+## Documentation
 
-**nginx**
-```
-location / {
-    proxy_pass http://127.0.0.1:8026;
-    proxy_set_header Host $host;
-    proxy_set_header X-Forwarded-For $remote_addr;
-}
-```
-
-Then point the TSP app at `https://relay.example.com`.
-
-Two proxy-related settings worth adding:
-
-- **HSTS** — the relay does not emit `Strict-Transport-Security` itself
-  (it never knows whether TLS is in play); set it at the proxy, e.g.
-  nginx `add_header Strict-Transport-Security "max-age=31536000" always;`
-  (Caddy sends sensible defaults with a `header` directive).
-- **`RELAY_TRUSTED_PROXIES`** (optional) — by default the relay trusts
-  `X-Forwarded-For` as-is for the client IPs shown in the Transaction
-  Log, which works out of the box behind one proxy hop but lets a
-  direct client spoof its logged address. Set this to your proxy's
-  address as seen by the relay (for the compose setup above, the docker
-  bridge, e.g. `172.16.0.0/12`) to honour the header only from your
-  proxy and make logged IPs spoof-proof.
-
-## Configure the TSP app
-
-In the portal: **Settings → Domain / Email**
-
-1. **Sending method** → *API relay (HTTPS)*
-2. **Relay URL** → `https://relay.example.com`
-3. **Relay API key** → the key from the relay's Settings page
-4. **From email / From name** → your sender identity
-5. **Save Email Settings**, then **Send Test**. The result also lands in
-   the relay's Transaction Log.
-
-## API (consumed by the TSP app)
-
-### `POST /api/send`
-Header: `Authorization: Bearer <api-key>` · Body: JSON
-
-```json
-{
-  "from_email": "noreply@example.com",
-  "from_name": "Trusted Servants Pro",
-  "to": ["someone@example.org"],
-  "subject": "Hello",
-  "text": "Plain-text body",
-  "html": "<p>Optional HTML body</p>",
-  "reply_to": "replies@example.org",
-  "reply_to_name": "Replies",
-  "attachments": [
-    {"filename": "doc.pdf", "mime_type": "application/pdf", "content_b64": "..."}
-  ]
-}
-```
-
-`200 {"ok": true}` on success; otherwise `{"ok": false, "error": "..."}`
-with `401` (bad key), `403` (From not allowed), `413` (attachments or
-request body too big), `429` (per-IP rate limit — see
-`RELAY_SEND_PER_HOUR`), or `502` (SMTP failed — the response is generic;
-delivery details appear only in the relay's Transaction Log). Messages
-are capped at 100 recipients (`400`).
-
-### `GET /healthz`
-Unauthenticated liveness probe; returns `{"ok": true}` only.
-Configuration state is available to authenticated callers via
-`GET /api/health` (Bearer-authenticated).
-
-## Environment variables
-
-| Var | Required | Default | Notes |
-|-----|----------|---------|-------|
-| `RELAY_SECRET_KEY` | ✅ | — | Signs sessions + encrypts stored secrets (HKDF-derived keys). The relay **refuses to start** without it. Keep it stable — rotating it invalidates the stored SMTP password + API key. Use 32+ chars. |
-| `RELAY_ADMIN_USER` | | `admin` | First-boot admin username. |
-| `RELAY_ADMIN_PASSWORD` | ✅ | — | First-boot password (compose refuses to start without it). If it is ever seeded as `admin`, the UI forces a password change at first login. |
-| `RELAY_TRUSTED_PROXIES` | | — | Comma-separated IPs/CIDRs of reverse proxies. Blank = `X-Forwarded-For` trusted as-is (logged IPs are spoofable); set = header honoured only from these addresses. |
-| `RELAY_SEND_PER_HOUR` | | `60` | Per-IP ceiling on `/api/send` requests per hour; `0` disables. Login is separately throttled (5 failures/minute per IP). |
-| `RELAY_LOG_LEVEL` | | `INFO` | `DEBUG` \| `INFO` \| `WARNING` \| `ERROR`. |
-| `RELAY_INSECURE_COOKIES` | | — | Set `1` only for local HTTP testing (no TLS). |
-| `RELAY_DATA_DIR` | | `/data` | Where `relay.db` lives. |
-
-Everything else (SMTP host/port/security/credentials, API key, allowed
-senders, attachment limit, Turnstile keys) is managed from the
-**Settings** page.
-
-## Local end-to-end test
-
-`docker-compose.test.yml` (in this repo) brings up the relay built from
-source plus a **Mailpit** SMTP sink to verify delivery. Both the relay
-UI and Mailpit's inbox are bound to localhost only, and the stack
-requires `RELAY_SECRET_KEY` + `RELAY_ADMIN_PASSWORD` in the environment.
-See the comments at the top of that file.
-
-## Security notes
-
-Built in:
-
-- Sessions and at-rest encryption keys are HKDF-derived from
-  `RELAY_SECRET_KEY`; the relay refuses to boot without one.
-- Forced password change whenever the admin account carries the seeded
-  default password.
-- Login lockout (5 failures/minute per IP) and a per-IP `/api/send`
-  ceiling (`RELAY_SEND_PER_HOUR`).
-- Security response headers on every page (CSP, `X-Frame-Options`,
-  `X-Content-Type-Options`, `Referrer-Policy`).
-- 100-recipient cap per message; SMTP error details are kept out of API
-  responses (they appear in the Transaction Log only).
-- Settings/credential changes and log clears are recorded in a
-  `settings_audit` table inside `relay.db` (who / when / from where).
-- The container runs as an unprivileged user (uid 1000).
-
-Operator checklist:
-
-- Always run the UI + API behind TLS in production, and set **HSTS** at
-  the reverse proxy (see *TLS in production*).
-- **Populate the Allowed From list.** Blank accepts any sender — set it
-  so a leaked key can't spoof arbitrary addresses.
-- Keep `RELAY_SECRET_KEY` long (32+ chars), random, and stable.
-- Set `RELAY_TRUSTED_PROXIES` if you want Transaction Log IPs to be
-  spoof-proof (by default the `X-Forwarded-For` header is trusted
-  as-is).
-- The API key is a plain bearer token with no replay protection — TLS
-  end-to-end between the TSP app and the relay is what protects it.
-- Optionally enable **Cloudflare Turnstile** (Settings → Login bot
-  protection) to challenge the sign-in page. The relay needs outbound
-  HTTPS to `challenges.cloudflare.com` for verification, and verifies the
-  token's `hostname` matches this relay.
+| | |
+| --- | --- |
+| [Setup and configuration](docs/DOCUMENTATION.md) | TLS, connecting the TSP app, environment variables, upgrading, the local test stack |
+| [API](docs/API.md) | `POST /api/send`, `GET /api/health`, `GET /healthz` |
+| [Security](docs/SECURITY.md) | What the relay defends against, the operator checklist, reporting a problem |
+| [Changelog](CHANGELOG.md) | Every release |
+| [Contributing](docs/CONTRIBUTING.md) | Commits, credit, and how releases are made |
 
 ## AI notice
 
@@ -266,6 +141,7 @@ TS Pro Relay is built by a human maintainer working with generative AI as a deve
 
 - **Code** — the large majority of the Python code in this repository was written with Anthropic's Claude (via Claude Code), working from the maintainer's direction. The maintainer decides what gets built, reviews the results, tests every release, and signs off on everything that ships.
 - **Text** — documentation, release notes, and in-app copy are largely AI-drafted and human-edited.
+- **Commits** are made under the maintainer's name. The tool is declared here once, for the whole repository, instead of in a trailer on every commit.
 - **The app itself contains no AI.** The relay has no AI features and makes no requests to AI services — it only accepts mail from your TS Pro instance and hands it to your SMTP provider. AI was used to *build* the app, not to run it.
 
 Bug reports and pull requests are welcome from humans and their AI tools alike; everything merged gets the same human review.

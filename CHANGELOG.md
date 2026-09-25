@@ -4,6 +4,8 @@ All notable changes to TS Pro Relay are documented here. The format is
 based on [Keep a Changelog](https://keepachangelog.com/), and this
 project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
 ## [0.2.2] — 2026-09-14
 
 Dependency maintenance release. No functional or configuration changes.
@@ -151,6 +153,7 @@ Initial public release.
   testing.
 - Branded UI matched to Trusted Servants Pro (TS Pro logo, gold accent).
 
+[0.2.2]: https://github.com/hyprlab/tspro-relay/releases/tag/v0.2.2
 [0.2.1]: https://github.com/hyprlab/tspro-relay/releases/tag/v0.2.1
 [0.2.0]: https://github.com/hyprlab/tspro-relay/releases/tag/v0.2.0
 [0.1.2]: https://github.com/hyprlab/tspro-relay/releases/tag/v0.1.2
