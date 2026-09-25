@@ -18,4 +18,4 @@ jobs:
       - name: Audit pinned dependencies (OSV)
         uses: pypa/gh-action-pip-audit@v1.1.0
         with:
-          inputs: -r requirements.txt
+          inputs: requirements.txt
