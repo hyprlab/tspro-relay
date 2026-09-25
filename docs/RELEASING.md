@@ -74,7 +74,7 @@ tools/next-version.sh --why            # what SemVer calls for, and why
 tools/prepare-release.sh               # or: tools/prepare-release.sh 0.3.0
 ```
 
-That runs the checks, turns `## Unreleased` into `## [X.Y.Z] — date`, sets
+That runs the checks, turns `## Unreleased` into `## [X.Y.Z] - date`, sets
 `__version__`, commits `chore(release): X.Y.Z`, makes the annotated tag
 `vX.Y.Z`, and stops. Nothing is pushed. Review with `git show --stat HEAD` and
 `tools/release-notes.sh X.Y.Z`.

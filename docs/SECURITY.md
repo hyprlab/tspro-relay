@@ -33,13 +33,13 @@ Only the latest release receives security fixes.
 
 - Always run the UI + API behind TLS in production, and set **HSTS** at
   the reverse proxy ([TLS in production](DOCUMENTATION.md#tls-in-production)).
-- **Populate the Allowed From list.** Blank accepts any sender — set it
+- **Populate the Allowed From list.** Blank accepts any sender, so set it
   so a leaked key can't spoof arbitrary addresses.
 - Keep `RELAY_SECRET_KEY` long (32+ chars), random, and stable.
 - Set `RELAY_TRUSTED_PROXIES` if you want Transaction Log IPs to be
   spoof-proof (by default the `X-Forwarded-For` header is trusted
   as-is).
-- The API key is a plain bearer token with no replay protection — TLS
+- The API key is a plain bearer token with no replay protection: TLS
   end-to-end between the TSP app and the relay is what protects it.
 - Optionally enable **Cloudflare Turnstile** (Settings → Login bot
   protection) to challenge the sign-in page. The relay needs outbound

@@ -24,8 +24,8 @@ Header: `Authorization: Bearer <api-key>` · Body: JSON
 
 `200 {"ok": true}` on success; otherwise `{"ok": false, "error": "..."}`
 with `401` (bad key), `403` (From not allowed), `413` (attachments or
-request body too big), `429` (per-IP rate limit — see
-`RELAY_SEND_PER_HOUR`), or `502` (SMTP failed — the response is generic;
+request body too big), `429` (per-IP rate limit, see
+`RELAY_SEND_PER_HOUR`), or `502` (SMTP failed; the response is generic and
 delivery details appear only in the relay's Transaction Log). Messages
 are capped at 100 recipients (`400`).
 

@@ -78,6 +78,9 @@ Documentation, the changelog, release notes, UI text and issue replies:
 - Factual, plain language. Say what the relay does, not what it enables you
   to do. No marketing, no superlatives, no "finally", no emoji.
 - American spelling in anything the relay shows: color, behavior, canceled.
+- No em dashes anywhere: the README, `docs/`, the changelog, commits and
+  GitHub comments. A colon, a comma, parentheses or a full stop instead.
+  `tools/check-docs.py` and the commit hook refuse them.
 - Changelog lines describe the change from the operator's side. How it was
   built belongs in the commit.
 - Comments in code explain *why*, not *what*.
@@ -93,8 +96,8 @@ python3 tools/check-docs.py
 ```
 
 It checks every relative link and anchor, that every `docs/*.md` is indexed,
-that `docs/` holds Markdown only, the README's length, and the changelog's
-shape and version.
+that `docs/` holds Markdown only, the README's length, em dashes, and the
+changelog's shape and version.
 
 Every user-visible change adds a line under `## Unreleased` in `CHANGELOG.md`.
 Every release, patches included, gets a section. `CHANGELOG.md` is the only

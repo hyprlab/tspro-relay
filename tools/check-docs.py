@@ -12,6 +12,8 @@ does not go out while it fails (docs/RELEASING.md).
   5. CHANGELOG.md keeps an "## Unreleased" section, its version headings are
      valid SemVer, newest first, and none repeats.
   6. The newest CHANGELOG version equals __version__ in relay.py.
+  7. No em dashes in the README, docs/ or the changelog: a colon, a comma,
+     parentheses or a full stop instead.
 
 Markdown that git ignores or excludes (CLAUDE.md is local only) is skipped.
 """
@@ -112,6 +114,16 @@ def check_docs_dir() -> None:
             fail(f"{path.relative_to(ROOT)}: docs/ holds Markdown only")
 
 
+def check_dashes(files: list[Path]) -> None:
+    for path in files:
+        rel = path.relative_to(ROOT)
+        if not (rel.parts[0] == "docs" or rel.name in ("README.md", "CHANGELOG.md")):
+            continue
+        for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
+            if "\u2014" in line:
+                fail(f"{rel}:{n}: an em dash; use a colon, a comma, parentheses or a full stop")
+
+
 def check_readme() -> None:
     readme = ROOT / "README.md"
     if not readme.exists():
@@ -168,6 +180,7 @@ def main() -> int:
     check_links(files)
     check_docs_dir()
     check_readme()
+    check_dashes(files)
     check_version(check_changelog())
     if problems:
         for problem in problems:

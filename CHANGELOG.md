@@ -6,7 +6,7 @@ project adheres to [Semantic Versioning](https://semver.org/).
 
 ## Unreleased
 
-## [0.2.2] — 2026-09-14
+## [0.2.2] - 2026-09-14
 
 Dependency maintenance release. No functional or configuration changes.
 
@@ -16,7 +16,7 @@ Dependency maintenance release. No functional or configuration changes.
   exposed a Bleichenbacher oracle through distinguishable errors and
   timing. The advisory covers `>= 44.0.0, < 50.0.0`, so the previous
   `<49` ceiling was itself blocking the fix. The relay only uses Fernet,
-  HKDF and SHA-256 — it never calls the PKCS#7 APIs — so no deployment
+  HKDF and SHA-256 and never calls the PKCS#7 APIs, so no deployment
   was exploitable through this path, but the vulnerable code shipped in
   the image.
 
@@ -24,7 +24,7 @@ Dependency maintenance release. No functional or configuration changes.
 - **gunicorn ≥ 26.2.0** (was pinned to 23.0.0). No advisory applied to
   23.0.0; this clears three majors of accumulated upstream fixes and
   keeps the ceiling from going stale again.
-- Flask stays at ≥ 3.1.3 — already current, no advisories outstanding.
+- Flask stays at ≥ 3.1.3: already current, no advisories outstanding.
 - `--no-control-socket` added to the container's gunicorn command.
   gunicorn 24 introduced a control socket that defaults to
   `$XDG_RUNTIME_DIR/gunicorn.ctl` and falls back to `$HOME/.gunicorn/`.
@@ -36,7 +36,7 @@ Dependency maintenance release. No functional or configuration changes.
 
 `pip-audit` is clean against the updated pins.
 
-## [0.2.1] — 2026-07-31
+## [0.2.1] - 2026-07-31
 
 ### Changed
 - **`X-Forwarded-For` is trusted as-is again by default** (0.1.x
@@ -48,7 +48,7 @@ Dependency maintenance release. No functional or configuration changes.
   available as an opt-in: when set, the header is honoured only from
   those proxy addresses, making logged IPs spoof-proof.
 
-## [0.2.0] — 2026-07-31
+## [0.2.0] - 2026-07-31
 
 Security-focused release following an internal security review. Existing
 installs upgrade in place: stored secrets are transparently re-encrypted
@@ -58,8 +58,8 @@ forced to change it at next login.
 ### Security
 - **No more `admin/admin` fallback.** `docker-compose.yml` now refuses to
   start without `RELAY_ADMIN_PASSWORD` (same pattern as
-  `RELAY_SECRET_KEY`). If an account is ever seeded with — or still
-  carries — the default password, the UI forces a password change at
+  `RELAY_SECRET_KEY`). If an account is ever seeded with (or still
+  carries) the default password, the UI forces a password change at
   login before anything else can be done.
 - **Dependency upgrades** clearing all known advisories (`pip-audit`
   clean): Flask ≥ 3.1.3 (PYSEC-2026-2151) and cryptography ≥ 48.0.1
@@ -83,7 +83,7 @@ forced to change it at next login.
   `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, and
   `Referrer-Policy: no-referrer`. HSTS is documented for the
   TLS-terminating proxy.
-- **`X-Forwarded-For` is no longer trusted unconditionally** — logged
+- **`X-Forwarded-For` is no longer trusted unconditionally**: logged
   client IPs use the direct peer unless the request came from
   `RELAY_TRUSTED_PROXIES` (comma-separated IPs/CIDRs).
 - **SMTP error hygiene**: API callers now get a generic
@@ -103,28 +103,28 @@ forced to change it at next login.
   `settings_audit` table recording settings/credential changes and log
   clears (who / when / from where).
 
-## [0.1.2] — 2026-07-04
+## [0.1.2] - 2026-07-04
 
 ### Changed
 - **Project moved to the `hyprlab` organization.** The source repo is now
   [`hyprlab/tspro-relay`](https://github.com/hyprlab/tspro-relay) on GitHub
   and the published image is [`hyprlab/tspro-relay`](https://hub.docker.com/r/hyprlab/tspro-relay)
   on Docker Hub. All references to the former `viibeware` account have been
-  updated. No code or behavior changes — pull `hyprlab/tspro-relay:latest`
+  updated. No code or behavior changes; pull `hyprlab/tspro-relay:latest`
   (or `:0.1.2`) and recreate the container.
 
-## [0.1.1] — 2026-05-31
+## [0.1.1] - 2026-05-31
 
 ### Added
-- **Authenticated health probe** (`GET /api/health`) — Bearer-authenticated,
+- **Authenticated health probe** (`GET /api/health`): Bearer-authenticated,
   returns `{ok, configured, smtp_host_set, version}`. The Trusted Servants
   Pro portal calls it to validate the relay URL **and** the shared API key
   behind its "Test connection" status pill (Settings → Domain / Email),
-  without sending a message. Unlike `/healthz` — which stays unauthenticated
-  for liveness checks — this rejects a missing or incorrect key with `401`,
+  without sending a message. Unlike `/healthz`, which stays unauthenticated
+  for liveness checks, this rejects a missing or incorrect key with `401`,
   and reports whether the relay's own upstream SMTP delivery is configured.
 
-## [0.1.0] — 2026-05-30
+## [0.1.0] - 2026-05-30
 
 Initial public release.
 
@@ -134,9 +134,9 @@ Initial public release.
   Reply-To, and base64 attachments; delivers via the configured upstream
   SMTP server.
 - **Admin web interface** with a session login:
-  - **Transaction Log** — every send and unauthorized attempt, with
+  - **Transaction Log**: every send and unauthorized attempt, with
     status badges and total / sent / failed / unauthorized counters.
-  - **Settings** — upstream SMTP server, one-click API key
+  - **Settings**: upstream SMTP server, one-click API key
     (reveal / copy / regenerate), allowed-sender allowlist, attachment
     size limit, send-test-email button, and admin credentials.
 - **Cloudflare Turnstile** bot protection (optional) on the login page,

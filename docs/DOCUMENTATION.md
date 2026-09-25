@@ -30,11 +30,11 @@ Then point the TSP app at `https://relay.example.com`.
 
 Two proxy-related settings worth adding:
 
-- **HSTS** — the relay does not emit `Strict-Transport-Security` itself
+- **HSTS**: the relay does not emit `Strict-Transport-Security` itself
   (it never knows whether TLS is in play); set it at the proxy, e.g.
   nginx `add_header Strict-Transport-Security "max-age=31536000" always;`
   (Caddy sends sensible defaults with a `header` directive).
-- **`RELAY_TRUSTED_PROXIES`** (optional) — by default the relay trusts
+- **`RELAY_TRUSTED_PROXIES`** (optional): by default the relay trusts
   `X-Forwarded-For` as-is for the client IPs shown in the Transaction
   Log, which works out of the box behind one proxy hop but lets a
   direct client spoof its logged address. Set this to your proxy's
@@ -57,13 +57,13 @@ In the portal: **Settings → Domain / Email**
 
 | Var | Required | Default | Notes |
 |-----|----------|---------|-------|
-| `RELAY_SECRET_KEY` | ✅ | — | Signs sessions + encrypts stored secrets (HKDF-derived keys). The relay **refuses to start** without it. Keep it stable — rotating it invalidates the stored SMTP password + API key. Use 32+ chars. |
+| `RELAY_SECRET_KEY` | ✅ | | Signs sessions + encrypts stored secrets (HKDF-derived keys). The relay **refuses to start** without it. Keep it stable: rotating it invalidates the stored SMTP password + API key. Use 32+ chars. |
 | `RELAY_ADMIN_USER` | | `admin` | First-boot admin username. |
-| `RELAY_ADMIN_PASSWORD` | ✅ | — | First-boot password (compose refuses to start without it). If it is ever seeded as `admin`, the UI forces a password change at first login. |
-| `RELAY_TRUSTED_PROXIES` | | — | Comma-separated IPs/CIDRs of reverse proxies. Blank = `X-Forwarded-For` trusted as-is (logged IPs are spoofable); set = header honoured only from these addresses. |
+| `RELAY_ADMIN_PASSWORD` | ✅ | | First-boot password (compose refuses to start without it). If it is ever seeded as `admin`, the UI forces a password change at first login. |
+| `RELAY_TRUSTED_PROXIES` | | | Comma-separated IPs/CIDRs of reverse proxies. Blank = `X-Forwarded-For` trusted as-is (logged IPs are spoofable); set = header honoured only from these addresses. |
 | `RELAY_SEND_PER_HOUR` | | `60` | Per-IP ceiling on `/api/send` requests per hour; `0` disables. Login is separately throttled (5 failures/minute per IP). |
 | `RELAY_LOG_LEVEL` | | `INFO` | `DEBUG` \| `INFO` \| `WARNING` \| `ERROR`. |
-| `RELAY_INSECURE_COOKIES` | | — | Set `1` only for local HTTP testing (no TLS). |
+| `RELAY_INSECURE_COOKIES` | | | Set `1` only for local HTTP testing (no TLS). |
 | `RELAY_DATA_DIR` | | `/data` | Where `relay.db` lives. |
 
 Everything else (SMTP host/port/security/credentials, API key, allowed

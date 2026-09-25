@@ -36,7 +36,7 @@ if not m:
 if not m.group(1).strip():
     sys.exit("The Unreleased section is empty. Write the entries before bumping.")
 today = datetime.date.today().isoformat()
-new = f"## Unreleased\n\n## [{version}] — {today}\n\n{m.group(1).strip()}\n\n"
+new = f"## Unreleased\n\n## [{version}] - {today}\n\n{m.group(1).strip()}\n\n"
 path.write_text(text[:m.start()] + new + text[m.end():], encoding="utf-8")
 PY
 
