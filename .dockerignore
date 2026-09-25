@@ -1,6 +1,7 @@
 .git
 .gitignore
 .env
+.env.test
 data/
 data-test/
 __pycache__/
@@ -8,5 +9,8 @@ __pycache__/
 docker-compose*.yml
 README.md
 CHANGELOG.md
-RELEASE_NOTES.md
 LICENSE
+docs/
+tools/
+.github/
+CONTRIBUTORS

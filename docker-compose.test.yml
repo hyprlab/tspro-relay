@@ -7,12 +7,12 @@
 # reaches mailpit at mailpit:1025. Mailpit's web inbox is also
 # localhost-only — the relay's own Transaction Log is the operator view.
 #
-# Run:   RELAY_SECRET_KEY=$(cat /tmp/relay_secret.txt) \
-#        RELAY_ADMIN_PASSWORD=<pick-one> \
-#          docker compose -f docker-compose.test.yml up -d --build
+# Run:   tools/redeploy.sh   (creates a git-ignored .env.test with random
+#        RELAY_SECRET_KEY and RELAY_ADMIN_PASSWORD the first time, rebuilds,
+#        restarts, and waits for /healthz)
 # Relay UI (local):  http://127.0.0.1:8026  (login admin / $RELAY_ADMIN_PASSWORD)
 # Mailpit (local):   http://127.0.0.1:8027  (verifies delivery)
-# Down:  docker compose -f docker-compose.test.yml down
+# Down:  tools/redeploy.sh down
 services:
   relay-test:
     build: .

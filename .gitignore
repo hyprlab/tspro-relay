@@ -4,3 +4,4 @@ __pycache__/
 data
 data-test
 SECURITY_REMEDIATION.md
+.env.test
